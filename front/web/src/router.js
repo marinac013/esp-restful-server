@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Chart from './views/Chart.vue'
 import Light from './views/Light.vue'
+import Relays from './views/Relays.vue'
 
 Vue.use(Router)
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '/light',
       name: 'light',
       component: Light
+    },
+    {
+      path: '/relays',
+      name: 'relays',
+      component: Relays
     }
   ]
 })
