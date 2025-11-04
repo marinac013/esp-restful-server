@@ -16,7 +16,7 @@
                 <v-flex xs9>
                   <v-slider v-model="green" :max="255" label="G"></v-slider>
                 </v-flex>
-                <v-flex xs3>
+                <v-flex xs3>s
                   <v-text-field v-model="green" class="mt-0" type="number"></v-text-field>
                 </v-flex>
                 <v-flex xs9>
@@ -28,7 +28,7 @@
               </v-layout>
             </v-container>
           </v-card-text>
-          <v-btn fab dark large color="red accent-4" @click="set_color">
+          <v-btn fab dark large color="blue accent-4" @click="set_color">
             <v-icon dark>check_box</v-icon>
           </v-btn>
         </v-card>
@@ -39,24 +39,24 @@
 
 <script>
 export default {
-  data() {
-    return { red: 160, green: 160, blue: 160 };
+  data () {
+    return { red: 160, green: 160, blue: 160 }
   },
   methods: {
-    set_color: function() {
+    set_color: function () {
       this.$ajax
-        .post("/api/v1/light/brightness", {
+        .post('/api/v1/light/brightness', {
           red: this.red,
           green: this.green,
           blue: this.blue
         })
         .then(data => {
-          console.log(data);
+          console.log(data)
         })
         .catch(error => {
-          console.log(error);
-        });
+          console.log(error)
+        })
     }
   }
-};
+}
 </script>

@@ -3,12 +3,12 @@
     <v-layout text-xs-center wrap>
       <v-flex xs12 sm6 offset-sm3>
         <v-card>
-          <v-img :src="require('../assets/logo.png')" contain height="200"></v-img>
+          <v-img :src="require('../assets/logo.png')" contain height="400"></v-img>
           <v-card-title primary-title>
             <div class="ma-auto">
-              <span class="grey--text">IDF version: {{version}}</span>
+              <span class="grey--text">version: {{version}}</span>
               <br>
-              <span class="grey--text">ESP cores: {{cores}}</span>
+              <span class="grey--text">cores: {{cores}}</span>
             </div>
           </v-card-title>
         </v-card>
@@ -33,8 +33,8 @@ export default {
         this.cores = data.data.cores;
       })
       .catch(error => {
-        console.log(error);
-      });
+        console.log(error)
+      })
   }
-};
+}
 </script>
