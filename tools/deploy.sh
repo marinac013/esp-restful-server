@@ -18,7 +18,7 @@ cd ~/esp/esp-idf
 cd "$SCRIPT_DIR/../" || exit 3
 
 # # Set the target to ESP32
-# idf.py set-target "$TARGET" || exit 4
+idf.py set-target "$TARGET" || exit 4
 
 # # Build the back-end firmware
 idf.py build || exit 5
@@ -27,7 +27,7 @@ idf.py build || exit 5
 idf.py -p "$DEVICE" flash || exit 6
 
 # # Monitor the serial output
-idf.py -p "$DEVICE" monitor || exit 7
+#idf.py -p "$DEVICE" monitor || exit 7
 
 # Successful deployment
 exit 0
