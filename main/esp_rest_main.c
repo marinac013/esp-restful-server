@@ -123,11 +123,21 @@ esp_err_t init_fs(void)
 }
 #endif
 
+esp_err_t init_gpios(void)
+{
+    gpio_set_direction(GPIO_NUM_16, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_NUM_17, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_NUM_18, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_NUM_19, GPIO_MODE_OUTPUT);
+    return ESP_OK;
+}
+
 void app_main(void)
 {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    init_gpios();
     initialise_mdns();
     netbiosns_init();
     netbiosns_set_name(CONFIG_EXAMPLE_MDNS_HOST_NAME);

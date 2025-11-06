@@ -14,6 +14,7 @@
 #include "esp_log.h"
 #include "esp_vfs.h"
 #include "cJSON.h"
+#include "driver/gpio.h"
 
 static const char *REST_TAG = "esp-rest";
 #define REST_CHECK(a, str, goto_tag, ...)                                              \
@@ -168,6 +169,131 @@ static esp_err_t temperature_data_get_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+/* Simple handler for setting relays state */
+// static esp_err_t relays_set_handler(httpd_req_t *req)
+// {
+//     int total_len = req->content_len;
+//     int cur_len = 0;
+//     char *buf = ((rest_server_context_t *)(req->user_ctx))->scratch;
+//     int received = 0;
+//     const char *uri = req->uri;
+//     if (req->content_len >= SCRATCH_BUFSIZE) {
+//         /* Respond with 500 Internal Server Error */
+//         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "content too long");
+//         return ESP_FAIL;
+//     }
+//     while (cur_len < total_len) {
+//         received = httpd_req_recv(req, buf + cur_len, total_len);
+//         if (received <= 0) {
+//             /* Respond with 500 Internal Server Error */
+//             httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to post control value");
+//             return ESP_FAIL;
+//         }
+//         cur_len += received;
+//     }
+//     buf[total_len] = '\0';
+
+//     cJSON *root = cJSON_Parse(buf);
+//     int status = cJSON_GetObjectItem(root, "status")->valueint;
+//     /* Set relay state */
+//     if (strstr(uri, "/api/v1/relays/0/") != NULL) {
+//         ESP_LOGI("relays_set_handler", "Relay 1 URI matched!");
+//         gpio_set_level(GPIO_NUM_2, status);
+//     } else if (strstr(uri, "/api/v1/relays/1/") != NULL) {
+//         ESP_LOGI("relays_set_handler", "Relay 2 URI matched!");
+//         gpio_set_level(GPIO_NUM_17, status);
+//     } else if (strstr(uri, "/api/v1/relays/2/") != NULL) {
+//         ESP_LOGI("relays_set_handler", "Relay 3 URI matched!");
+//         gpio_set_level(GPIO_NUM_18, status);
+//     } else if (strstr(uri, "/api/v1/relays/3/") != NULL) {
+//         ESP_LOGI("relays_set_handler", "Relay 4 URI matched!");
+//         gpio_set_level(GPIO_NUM_19, status);
+//     } else {
+//         ESP_LOGI("relays_set_handler", "ERROR: Relay with given ID not found!");
+//         httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Relay not found");
+//     }  
+    
+//     ESP_LOGI(REST_TAG, "Relay control: %s", status ? "ON" : "OFF");
+//     cJSON_Delete(root);
+//     httpd_resp_sendstr(req, "Post control value successfully");
+//     return ESP_OK;
+// }
+
+/**
+ * Extracts ?status=1 from the query string.
+ * Returns: 0 or 1 if valid, -1 if missing/invalid.
+ */
+static int get_status_from_query(const char *query)
+{
+    char value[8];
+    if (httpd_query_key_value(query, "status", value, sizeof(value)) == ESP_OK) {
+        int val = atoi(value);
+        if (val == 0 || val == 1) {
+            return val;
+        }
+    }
+    return -1;
+}
+
+/* Simple handler for setting relays state */
+static esp_err_t relays_set_handler(httpd_req_t *req)
+{
+    const char *uri = req->uri;
+    int relay_id = -1;
+    int status = -1;
+    char query[100];
+    ESP_LOGI("relays_set_handler", "URI: %s", uri);
+
+    // Parse relay number from URI
+    if (sscanf(uri, "/api/v1/relays/%d/", &relay_id) == 1) {
+        ESP_LOGI("relays_set_handler: ", "parsing relay ID: %d", relay_id);
+    } else {
+        ESP_LOGW("relays_set_handler: ", "invalid relay ID in URI");
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid relay ID in URI");
+        return ESP_FAIL;
+    }
+
+    // Parse query string (?status=1)
+    if (httpd_req_get_url_query_str(req, query, sizeof(query)) == ESP_OK) {
+        status = get_status_from_query(query);
+        ESP_LOGI("relays_set_handler: ", "parsing status: %d", status);
+    }
+
+    if (status == -1) {
+        ESP_LOGW("relays_set_handler: ", "missing or invalid status parameter");
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "relays_set_handler: missing or invalid status parameter");
+        return ESP_FAIL;
+    }
+
+    /* Set relay state */
+    switch (relay_id) {
+        case 0:
+            ESP_LOGI("relays_set_handler", "Setting Relay 1");
+            gpio_set_level(GPIO_NUM_16, status);
+            break;
+        case 1:
+            ESP_LOGI("relays_set_handler", "Setting Relay 2");
+            gpio_set_level(GPIO_NUM_17, status);
+            break;
+        case 2:
+            ESP_LOGI("relays_set_handler", "Setting Relay 3");
+            gpio_set_level(GPIO_NUM_18, status);
+            break;
+        case 3:
+            ESP_LOGI("relays_set_handler", "Setting Relay 4");
+            gpio_set_level(GPIO_NUM_19, status);
+            break;
+        default:
+            ESP_LOGW("relays_set_handler", "relay with given ID not found!");
+            httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "relay not found");
+            return ESP_FAIL;
+    }
+
+    ESP_LOGI(REST_TAG, "relays_set_handler: Relay control %d: %s", relay_id, status ? "ON" : "OFF");
+    httpd_resp_sendstr(req, "Post control value successfully");
+    return ESP_OK;
+}
+
 esp_err_t start_rest_server(const char *base_path)
 {
     REST_CHECK(base_path, "wrong base path", err);
@@ -217,6 +343,15 @@ esp_err_t start_rest_server(const char *base_path)
         .user_ctx = rest_context
     };
     httpd_register_uri_handler(server, &common_get_uri);
+
+    /* URI handler for setting relay state */
+    httpd_uri_t relays_set_uri = {
+        .uri = "/api/v1/relays/*",
+        .method = HTTP_POST,
+        .handler = relays_set_handler,
+        .user_ctx = rest_context
+    };
+    httpd_register_uri_handler(server, &relays_set_uri);
 
     return ESP_OK;
 err_start:
