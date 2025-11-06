@@ -6,30 +6,30 @@
             <h-card>
               <vtext style="h1">Relay 1</vtext>
               <v-btn fab dark medium color="blue accent-4" @click="toggle(state(0))">
-                <v-icon dark>toggle_on</v-icon>
+                <v-icon dark>{{ state[0] ? 'toggle_on' : 'toggle_off' }}</v-icon>
               </v-btn>
-              <vtext>this.state[0] ? 'On' : 'Off'</vtext>
+              <vtext>{{ state[0] ? 'On' : 'Off' }}</vtext>
             </h-card>
             <h-card>
               <vtext style="h1">Relay 2</vtext>
               <v-btn fab dark medium color="blue accent-4" @click="toggle(state(1))">
-                <v-icon dark>toggle_on</v-icon>
+                <v-icon dark>{{ state[1] ? 'toggle_on' : 'toggle_off' }}</v-icon>
               </v-btn>
-              <vtext>this.state[1] ? 'On' : 'Off'</vtext>
+              <vtext>{{ state[1] ? 'On' : 'Off' }}</vtext>
             </h-card>
             <h-card>
               <vtext style="h1">Relay 3</vtext>
               <v-btn fab dark medium color="blue accent-4" @click="toggle(state(2))">
-                <v-icon dark>toggle_on</v-icon>
+                <v-icon dark>{{ state[2] ? 'toggle_on' : 'toggle_off' }}</v-icon>
               </v-btn>
-              <vtext>this.state[2] ? 'On' : 'Off'</vtext>
+              <vtext>{{ state[2] ? 'On' : 'Off' }}</vtext>
             </h-card>
             <h-card>
               <vtext style="h1">Relay 4</vtext>
               <v-btn fab dark medium color="blue accent-4" @click="toggle(state(3))">
-                <v-icon dark>toggle_on</v-icon>
+                <v-icon dark>{{ state[3] ? 'toggle_on' : 'toggle_off' }}</v-icon>
               </v-btn>
-              <vtext>this.state[3] ? 'On' : 'Off'</vtext>
+              <vtext>{{ state[3] ? 'On' : 'Off' }}</vtext>
             </h-card>
           </div>
       </v-flex>
