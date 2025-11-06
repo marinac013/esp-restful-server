@@ -2,36 +2,15 @@
   <v-container>
     <v-layout text-xs-center wrap>
       <v-flex xs12 sm6 offset-sm3>
-          <div class="button-stack">
-            <h-card>
-              <vtext style="h1">Relay 1</vtext>
-              <v-btn fab dark medium color="blue accent-4" @click="toggle(state(0))">
-                <v-icon dark>{{ state[0] ? 'toggle_on' : 'toggle_off' }}</v-icon>
-              </v-btn>
-              <vtext>{{ state[0] ? 'On' : 'Off' }}</vtext>
-            </h-card>
-            <h-card>
-              <vtext style="h1">Relay 2</vtext>
-              <v-btn fab dark medium color="blue accent-4" @click="toggle(state(1))">
-                <v-icon dark>{{ state[1] ? 'toggle_on' : 'toggle_off' }}</v-icon>
-              </v-btn>
-              <vtext>{{ state[1] ? 'On' : 'Off' }}</vtext>
-            </h-card>
-            <h-card>
-              <vtext style="h1">Relay 3</vtext>
-              <v-btn fab dark medium color="blue accent-4" @click="toggle(state(2))">
-                <v-icon dark>{{ state[2] ? 'toggle_on' : 'toggle_off' }}</v-icon>
-              </v-btn>
-              <vtext>{{ state[2] ? 'On' : 'Off' }}</vtext>
-            </h-card>
-            <h-card>
-              <vtext style="h1">Relay 4</vtext>
-              <v-btn fab dark medium color="blue accent-4" @click="toggle(state(3))">
-                <v-icon dark>{{ state[3] ? 'toggle_on' : 'toggle_off' }}</v-icon>
-              </v-btn>
-              <vtext>{{ state[3] ? 'On' : 'Off' }}</vtext>
-            </h-card>
-          </div>
+        <div class="button-stack">
+          <h-card v-for="(relay, index) in state" :key="index">
+            <vtext style="h1">Relay {{ index + 1 }}</vtext>
+            <v-btn fab dark medium color="blue accent-4" @click="toggle(index)">
+              <v-icon dark>{{ relay ? 'toggle_on' : 'toggle_off' }}</v-icon>
+            </v-btn>
+            <vtext>{{ relay ? 'On' : 'Off' }}</vtext>
+          </h-card>
+        </div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -40,14 +19,14 @@
 <script>
 export default {
   data () {
-    return { state: [0, 0, 0, 0] }
+    return { state: [0, 0, 0, 1] }
   },
   methods: {
-    toggle: function (relay) {
-      this.state[relay] = this.state[relay] ? 0 : 1 // toggle state
+    toggle: function (relayID) {
+      this.$set(this.state, relayID, this.state[relayID] ? 0 : 1) // Toggle state locally
       this.$ajax
-        .post(`/api/v1/relays/${relay}`, {
-          state: this.state[relay]
+        .post(`/api/v1/relays/${relayID}`, {
+          state: this.state[relayID]
         })
         .then(data => {
           console.log(data)
