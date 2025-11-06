@@ -19,7 +19,7 @@
 <script>
 export default {
   data () {
-    return { state: [0, 0, 0, 1] }
+    return { state: [0, 0, 0, 0] }
   },
   methods: {
     toggle: function (relayID) {
