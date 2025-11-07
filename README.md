@@ -1,21 +1,18 @@
 | Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C5 | ESP32-C6 | ESP32-C61 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
 | ----------------- | ----- | -------- | -------- | -------- | -------- | --------- | -------- | -------- | -------- |
 
-# HTTP Restful API Server Example
-
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+# HTTP Restful API Server for Home Automation
 
 ## Overview
 
-This example mainly introduces how to implement a RESTful API server and HTTP server on ESP32, with a frontend browser UI.
+This design uses  several APIs to fetch resources as shown below:
 
-This example designs several APIs to fetch resources as follows:
-
-| API                        | Method | Resource Example                                      | Description                                                                              | Page URL |
-| -------------------------- | ------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------- |
-| `/api/v1/system/info`      | `GET`  | {<br />version:"v4.0-dev",<br />cores:2<br />}        | Used for clients to get system information like IDF version, ESP32 cores, etc            | `/`      |
-| `/api/v1/temp/raw`         | `GET`  | {<br />raw:22<br />}                                  | Used for clients to get raw temperature data read from sensor                            | `/chart` |
-| `/api/v1/light/brightness` | `POST` | { <br />red:160,<br />green:160,<br />blue:160<br />} | Used for clients to upload control values to ESP32 in order to control LED’s brightness  | `/light` |
+| API                                           | Method   | Resource Example             | Description                                                                              | Page URL   |
+| --------------------------------------------- | -------- | ---------------------------- | ---------------------------------------------------------------------------------------- | ---------- |
+| /api/v1/system/info                       | `GET`  | {version:"v4.0-dev",cores:2} | Used for clients to get system information like IDF version, ESP32 cores, etc            | `/`      |
+| /api/v1/temp/raw                          | `GET`  | {raw:22}                     | Used for clients to get raw temperature data read from sensor                            | `/chart` |
+| /api/v1/light/brightness                  | `POST` | {red:160,green:160,blue:160} | Used for clients to upload control values to ESP32 in order to control LED’s brightness | `/light` |
+| /api/v1/relays/$relay_index/?state=$value | `POST` | state=1                      | Used for clients to  control relays states                                               | `/relays` |
 
 **Page URL** is the URL of the webpage which will send a request to the API.
 
@@ -38,7 +35,7 @@ After developing, the pages should be deployed to one of the following destinati
 
 Many famous frontend frameworks (e.g. Vue, React, Angular) can be used in this example. Here we just take [Vue](https://vuejs.org/) as example and adopt the [vuetify](https://vuetifyjs.com/) as the UI library.
 
-## How to use example
+## How to use program ESP32
 
 ### Hardware Required
 
@@ -56,7 +53,10 @@ Only if you deploy the website to SD card, then the following pin connection is 
 | GPIO13 | D3      |
 | GPIO14 | CLK     |
 | GPIO15 | CMD     |
-
+| GPIO16 | RELAY 1 |
+| GPIO17 | RELAY 2 |
+| GPIO18 | RELAY 3 |
+| GPIO19 | RELAY 4 |
 
 ### Configure the project
 
@@ -88,6 +88,14 @@ cd path_to_this_example/front/web
 npm install
 npm run build
 ```
+
+or you can run automation script for compiling front-end, back-end and flashing
+
+```bashn
+cd tools/
+./deploy.sh
+```
+
 > **_NOTE:_** This example needs `nodejs` version `v10.19.0`
 
 After a while, you will see a `dist` directory which contains all the website files (e.g. html, js, css, images).
@@ -106,15 +114,13 @@ We need to run the latest version of OpenOCD which should support semihost featu
 openocd-esp32/bin/openocd -s openocd-esp32/share/openocd/scripts -f board/esp32-wrover-kit-3.3v.cfg
 ```
 
-## Example Output
+## Outputs
 
 ### Render webpage in browser
 
 In your browser, enter the URL where the website located (e.g. `http://esp-home.local`). You can also enter the IP address that ESP32 obtained if your operating system currently don't have support for mDNS service.
 
 Besides that, this example also enables the NetBIOS feature with the domain name `esp-home`. If your OS supports NetBIOS and has enabled it (e.g. Windows has native support for NetBIOS), then the URL `http://esp-home` should also work.
-
-![esp_home_local](https://dl.espressif.com/dl/esp-idf/docs/_static/esp_home_local.gif)
 
 ### ESP monitor output
 
@@ -139,3 +145,4 @@ I (137485) esp-rest: Light control: red = 50, green = 85, blue = 28
    * When you choose to deploy website to SPI flash, make sure the `dist` directory has been generated before you building this example.
 
 (For any technical queries, please open an [issue](https://github.com/espressif/esp-idf/issues) on GitHub. We will get back to you as soon as possible.)
+
