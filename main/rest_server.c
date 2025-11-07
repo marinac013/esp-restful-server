@@ -225,14 +225,20 @@ static esp_err_t temperature_data_get_handler(httpd_req_t *req)
  */
 static int get_status_from_query(const char *query)
 {
-    char value[8];
-    if (httpd_query_key_value(query, "status", value, sizeof(value)) == ESP_OK) {
-        int val = atoi(value);
-        if (val == 0 || val == 1) {
-            return val;
-        }
+    if (!query) return -1;
+
+    const char *equal_sign = strchr(query, '='); // find the '=' character
+    if (!equal_sign) return -1; // '=' not found
+
+    // convert value string to integer
+    int val = atoi(equal_sign + 1);
+
+    // check if value is valid (0 or 1)
+    if (val == 0 || val == 1) {
+        return val;
     }
-    return -1;
+
+    return -1; // invalid value
 }
 
 /* Simple handler for setting relays state */
