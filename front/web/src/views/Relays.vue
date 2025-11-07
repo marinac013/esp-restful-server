@@ -24,16 +24,15 @@ export default {
   methods: {
     toggle: function (relayID) {
       this.$set(this.state, relayID, this.state[relayID] ? 0 : 1) // Toggle state locally
-      this.$ajax
-        .post(`/api/v1/relays/${relayID}`, {
-          state: this.state[relayID]
-        })
-        .then(data => {
-          console.log(data)
-        })
-        .catch(error => {
-          console.log(error)
-        })
+      this.$ajax.post(`/api/v1/relays/${relayID}/?state=${this.state[relayID]}`, {
+        headers: { 'Content-Type': 'text/plain' }
+      })
+      this.then(data => {
+        console.log(data)
+      })
+      this.catch(error => {
+        console.log(error)
+      })
     }
   }
 }
