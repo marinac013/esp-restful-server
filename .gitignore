@@ -1,3 +1,7 @@
 # Ignore build output directories
 /build
+/managed_components
+
+# Ignore IDE specific files
 /.vscode
+/.dependencies.lock
